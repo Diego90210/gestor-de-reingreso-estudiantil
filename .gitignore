@@ -43,3 +43,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent skills
+.agents/
+skills-lock.json
+PLAN_EMAIL_AUDITORIA.md
+
+# project docs
+diseno_frontend_dashboard.md
+plan_desarrollo.md
