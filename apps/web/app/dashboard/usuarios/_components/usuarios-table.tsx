@@ -2,7 +2,14 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useTransition } from "react"
-import { ChevronLeft, ChevronRight, Ban, CheckCircle } from "lucide-react"
+import Link from "next/link"
+import {
+  ChevronLeft,
+  ChevronRight,
+  Ban,
+  CheckCircle,
+  Pencil,
+} from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -16,6 +23,7 @@ import {
 import { ROLES_USUARIO } from "@/lib/constants"
 import type { RolSistema } from "@/lib/supabase/types"
 import { desactivarUsuario, reactivarUsuario } from "@/actions/usuarios"
+import { toast } from "sonner"
 
 type UsuarioRow = {
   id: string
@@ -65,9 +73,14 @@ export function UsuariosTable({
         } else {
           await reactivarUsuario(usuario.id)
         }
+        toast.success(
+          usuario.activo
+            ? "Usuario desactivado correctamente"
+            : "Usuario reactivado correctamente",
+        )
         router.refresh()
       } catch {
-        // error toast silencioso
+        toast.error("Error al cambiar estado del usuario")
       }
     })
   }
@@ -90,6 +103,7 @@ export function UsuariosTable({
             <TableHead className="hidden md:table-cell">Rol</TableHead>
             <TableHead className="hidden md:table-cell">Programa</TableHead>
             <TableHead>Estado</TableHead>
+            <TableHead className="w-24" />
             <TableHead className="w-16" />
           </TableRow>
         </TableHeader>
@@ -120,6 +134,17 @@ export function UsuariosTable({
                 >
                   {u.activo ? "Activo" : "Inactivo"}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link
+                    href={`/dashboard/usuarios/${u.id}`}
+                    title="Editar usuario"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Editar</span>
+                  </Link>
+                </Button>
               </TableCell>
               <TableCell>
                 <Button

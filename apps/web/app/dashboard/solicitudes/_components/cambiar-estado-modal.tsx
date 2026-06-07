@@ -24,6 +24,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { ESTADOS_SOLICITUD, ESTADOS_COLOR } from "@/lib/constants"
 import type { EstadoSolicitud } from "@/lib/supabase/types"
 import { cambiarEstadoSolicitud } from "@/actions/solicitudes"
+import { toast } from "sonner"
 
 interface CambiarEstadoModalProps {
   open: boolean
@@ -88,9 +89,10 @@ export function CambiarEstadoModal({
       })
       resetForm()
       onOpenChange(false)
+      toast.success("Estado actualizado correctamente")
       router.refresh()
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al cambiar estado")
+      toast.error(e instanceof Error ? e.message : "Error al cambiar estado")
     } finally {
       setEnviando(false)
     }

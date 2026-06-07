@@ -26,6 +26,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@clerk/nextjs": "^7.4.2"
+    "@clerk/nextjs": "^7.4.2",
+    "recharts": "^3.8.1"
   }
 }

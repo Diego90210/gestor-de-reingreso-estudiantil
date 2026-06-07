@@ -1,6 +1,10 @@
 import { createServerClient } from "@/lib/supabase/server"
+import { getUserProfile } from "@/lib/auth"
 import { ITEMS_POR_PAGINA } from "@/lib/constants"
 import type { EstadoSolicitud } from "@/lib/supabase/types"
+import { Button } from "@workspace/ui/components/button"
+import { Plus } from "lucide-react"
+import Link from "next/link"
 import { SolicitudFiltros } from "./_components/solicitud-filtros"
 import { SolicitudesTable } from "./_components/solicitudes-table"
 
@@ -37,12 +41,14 @@ interface PageProps {
     q?: string
     estado?: string
     programa?: string
+    periodo?: string
     page?: string
   }>
 }
 
 export default async function SolicitudesPage({ searchParams }: PageProps) {
   const params = await searchParams
+  const profile = await getUserProfile()
   const supabase = createServerClient()
   const page = Math.max(1, Number(params.page) || 1)
   const pageSize = ITEMS_POR_PAGINA
@@ -64,6 +70,10 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
     { count: "exact" }
   )
 
+  if (profile?.rol === "estudiante") {
+    query = query.eq("estudiante_id", profile.id)
+  }
+
   if (params.q) {
     query = query.or(
       `numero_radicado.ilike.%${params.q}%,motivo_solicitud.ilike.%${params.q}%`
@@ -74,6 +84,9 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
   }
   if (params.programa) {
     query = query.eq("programa", params.programa)
+  }
+  if (params.periodo) {
+    query = query.eq("periodo_id", params.periodo)
   }
 
   const from = (page - 1) * pageSize
@@ -109,16 +122,30 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
 
   const total = count ?? 0
   const totalPages = Math.ceil(total / pageSize)
+  const esEstudiante = profile?.rol === "estudiante"
+  const rol = profile?.rol ?? ""
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Solicitudes de Reingreso
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Gestione y revise las solicitudes radicadas por los estudiantes
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {esEstudiante ? "Mis Solicitudes" : "Solicitudes de Reingreso"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {esEstudiante
+              ? "Consulta el estado de tus solicitudes de reingreso"
+              : "Gestione y revise las solicitudes radicadas por los estudiantes"}
+          </p>
+        </div>
+        {esEstudiante && (
+          <Button asChild>
+            <Link href="/dashboard/solicitudes/nueva">
+              <Plus className="h-4 w-4" />
+              Nueva Solicitud
+            </Link>
+          </Button>
+        )}
       </div>
       <SolicitudFiltros
         q={params.q ?? ""}
@@ -128,12 +155,14 @@ export default async function SolicitudesPage({ searchParams }: PageProps) {
           id: p.id,
           nombre: p.nombre,
         }))}
+        rol={rol}
       />
       <SolicitudesTable
         solicitudes={solicitudes}
         total={total}
         page={page}
         totalPages={totalPages}
+        rol={rol}
       />
     </div>
   )

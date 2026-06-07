@@ -17,6 +17,7 @@ import {
 import { ROLES_USUARIO, PROGRAMAS } from "@/lib/constants"
 import type { RolSistema } from "@/lib/supabase/types"
 import { crearUsuario } from "@/actions/usuarios"
+import { toast } from "sonner"
 
 export default function NuevoUsuarioPage() {
   const router = useRouter()
@@ -44,10 +45,13 @@ export default function NuevoUsuarioPage() {
             ? (form.get("codigo_estudiante") as string)
             : undefined,
       })
+      toast.success("Usuario creado correctamente")
       router.push("/dashboard/usuarios")
       router.refresh()
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al crear usuario")
+      const msg = e instanceof Error ? e.message : "Error al crear usuario"
+      setError(msg)
+      toast.error(msg)
     } finally {
       setEnviando(false)
     }

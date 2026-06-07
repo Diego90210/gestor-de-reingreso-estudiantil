@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { createServerClient } from "@/lib/supabase/server"
+import { getUserProfile } from "@/lib/auth"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import Link from "next/link"
@@ -7,6 +8,7 @@ import { ArrowLeft } from "lucide-react"
 import { ESTADOS_COLOR, ESTADOS_SOLICITUD } from "@/lib/constants"
 import type { EstadoSolicitud } from "@/lib/supabase/types"
 import { SolicitudDetalleClient } from "./solicitud-detalle-client"
+import { DocumentosSection } from "./documentos-section"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -68,6 +70,7 @@ async function getSolicitud(id: string) {
 
 export default async function SolicitudDetallePage({ params }: PageProps) {
   const { id } = await params
+  const profile = await getUserProfile()
   const data = await getSolicitud(id)
 
   if (!data) notFound()
@@ -239,55 +242,46 @@ export default async function SolicitudDetallePage({ params }: PageProps) {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border p-6">
-            <h2 className="mb-4 text-lg font-medium">Estudiante</h2>
-            <dl className="space-y-3 text-sm">
-              <div>
-                <dt className="text-muted-foreground">Nombre</dt>
-                <dd className="mt-1 font-medium">
-                  {solicitudRow.estudiante.nombre}{" "}
-                  {solicitudRow.estudiante.apellido}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Email</dt>
-                <dd className="mt-1">{solicitudRow.estudiante.email}</dd>
-              </div>
-              {solicitudRow.estudiante.codigo_estudiante && (
+          {profile?.rol !== "estudiante" && (
+            <div className="rounded-lg border p-6">
+              <h2 className="mb-4 text-lg font-medium">Estudiante</h2>
+              <dl className="space-y-3 text-sm">
                 <div>
-                  <dt className="text-muted-foreground">Código</dt>
-                  <dd className="mt-1">
-                    {solicitudRow.estudiante.codigo_estudiante}
+                  <dt className="text-muted-foreground">Nombre</dt>
+                  <dd className="mt-1 font-medium">
+                    {solicitudRow.estudiante.nombre}{" "}
+                    {solicitudRow.estudiante.apellido}
                   </dd>
                 </div>
-              )}
-            </dl>
-          </div>
+                <div>
+                  <dt className="text-muted-foreground">Email</dt>
+                  <dd className="mt-1">{solicitudRow.estudiante.email}</dd>
+                </div>
+                {solicitudRow.estudiante.codigo_estudiante && (
+                  <div>
+                    <dt className="text-muted-foreground">Código</dt>
+                    <dd className="mt-1">
+                      {solicitudRow.estudiante.codigo_estudiante}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
 
-          <div className="rounded-lg border p-6">
-            <h2 className="mb-4 text-lg font-medium">Documentos</h2>
-            {documentos.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay documentos adjuntos
-              </p>
-            ) : (
-              <ul className="space-y-2 text-sm">
-                {documentos.map((d) => (
-                  <li key={d.id} className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {d.nombre_archivo}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <SolicitudDetalleClient
+          <DocumentosSection
             solicitudId={solicitudRow.id}
-            radicado={solicitudRow.numero_radicado}
-            estado={solicitudRow.estado}
+            documentos={documentos}
+            rol={profile?.rol ?? ""}
           />
+
+          {profile?.rol !== "estudiante" && (
+            <SolicitudDetalleClient
+              solicitudId={solicitudRow.id}
+              radicado={solicitudRow.numero_radicado}
+              estado={solicitudRow.estado}
+            />
+          )}
         </div>
       </div>
     </div>

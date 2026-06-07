@@ -2,6 +2,7 @@
 
 import { auth, clerkClient } from "@clerk/nextjs/server"
 import { createServerClient } from "@/lib/supabase/server"
+import { getUserProfile } from "@/lib/auth"
 import type { RolSistema } from "@/lib/supabase/types"
 
 export interface CrearUsuarioInput {
@@ -16,6 +17,9 @@ export interface CrearUsuarioInput {
 export async function crearUsuario(data: CrearUsuarioInput) {
   const { userId } = await auth()
   if (!userId) throw new Error("No autenticado")
+
+  const actor = await getUserProfile()
+  if (actor?.rol !== "registro_control") throw new Error("No autorizado")
 
   const clerk = await clerkClient()
 
@@ -39,18 +43,12 @@ export async function crearUsuario(data: CrearUsuarioInput) {
   } as never)
 
   if (error) {
-    await clerk.users.deleteUser(clerkUser.id)
+    await clerk.users.deleteUser(clerkUser.id).catch(() => {})
     throw new Error(`Error al crear perfil: ${error.message}`)
   }
 
-  const { data: perfil } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("clerk_id", clerkUser.id)
-    .single()
-
   await supabase.from("audit_log").insert({
-    actor_id: perfil ? (perfil as unknown as { id: string }).id : null,
+    actor_id: actor!.id,
     accion: "USER_CREATED",
     entidad: "profiles",
     detalle: { email: data.email, rol: data.rol },
@@ -62,6 +60,9 @@ export async function crearUsuario(data: CrearUsuarioInput) {
 export async function desactivarUsuario(profileId: string) {
   const { userId } = await auth()
   if (!userId) throw new Error("No autenticado")
+
+  const actor = await getUserProfile()
+  if (actor?.rol !== "registro_control") throw new Error("No autorizado")
 
   const supabase = createServerClient()
 
@@ -88,7 +89,10 @@ export async function desactivarUsuario(profileId: string) {
     .update({ activo: false } as never)
     .eq("id", profileId)
 
-  if (error) throw new Error(`Error al desactivar perfil: ${error.message}`)
+  if (error) {
+    await clerk.users.unbanUser(row.clerk_id).catch(() => {})
+    throw new Error(`Error al desactivar perfil: ${error.message}`)
+  }
 
   await supabase.from("audit_log").insert({
     actor_id: row.id,
@@ -104,6 +108,9 @@ export async function desactivarUsuario(profileId: string) {
 export async function reactivarUsuario(profileId: string) {
   const { userId } = await auth()
   if (!userId) throw new Error("No autenticado")
+
+  const actor = await getUserProfile()
+  if (actor?.rol !== "registro_control") throw new Error("No autorizado")
 
   const supabase = createServerClient()
 
@@ -130,7 +137,10 @@ export async function reactivarUsuario(profileId: string) {
     .update({ activo: true } as never)
     .eq("id", profileId)
 
-  if (error) throw new Error(`Error al reactivar perfil: ${error.message}`)
+  if (error) {
+    await clerk.users.banUser(row.clerk_id).catch(() => {})
+    throw new Error(`Error al reactivar perfil: ${error.message}`)
+  }
 
   await supabase.from("audit_log").insert({
     actor_id: row.id,
@@ -196,4 +206,90 @@ export async function getUsuarios(filtros: {
     total: count ?? 0,
     totalPages: Math.ceil((count ?? 0) / pageSize),
   }
+}
+
+export async function getUsuario(profileId: string) {
+  const supabase = createServerClient()
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", profileId)
+    .single()
+
+  if (error) throw new Error("Usuario no encontrado")
+
+  return data as unknown as {
+    id: string
+    clerk_id: string
+    email: string
+    nombre: string
+    apellido: string
+    rol: RolSistema
+    programa: string | null
+    codigo_estudiante: string | null
+    activo: boolean
+    created_at: string
+  }
+}
+
+export async function actualizarUsuario(
+  profileId: string,
+  data: {
+    nombre: string
+    apellido: string
+    email: string
+    rol: RolSistema
+    programa?: string
+    codigo_estudiante?: string
+  }
+) {
+  const { userId } = await auth()
+  if (!userId) throw new Error("No autenticado")
+
+  const actor = await getUserProfile()
+  if (actor?.rol !== "registro_control") throw new Error("No autorizado")
+
+  const supabase = createServerClient()
+
+  const { data: perfil } = await supabase
+    .from("profiles")
+    .select("clerk_id")
+    .eq("id", profileId)
+    .single()
+
+  if (!perfil) throw new Error("Usuario no encontrado")
+
+  const row = perfil as unknown as { clerk_id: string }
+
+  const clerk = await clerkClient()
+  await clerk.users.updateUser(row.clerk_id, {
+    firstName: data.nombre,
+    lastName: data.apellido,
+  })
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      nombre: data.nombre,
+      apellido: data.apellido,
+      email: data.email,
+      rol: data.rol,
+      programa: data.programa ?? null,
+      codigo_estudiante: data.codigo_estudiante ?? null,
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("id", profileId)
+
+  if (error) throw new Error(`Error al actualizar perfil: ${error.message}`)
+
+  await supabase.from("audit_log").insert({
+    actor_id: actor!.id,
+    accion: "USER_UPDATED",
+    entidad: "profiles",
+    entidad_id: profileId,
+    detalle: { email: data.email, rol: data.rol },
+  } as never)
+
+  return { success: true }
 }

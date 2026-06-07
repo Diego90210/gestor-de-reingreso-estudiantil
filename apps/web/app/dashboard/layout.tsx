@@ -1,47 +1,38 @@
-import Link from "next/link"
-import {
-  FileText,
-  Users,
-  BarChart3,
-  ClipboardList,
-  Shield,
-  ShieldAlert,
-  LayoutDashboard,
-  type LucideIcon,
-} from "lucide-react"
+import { Shield, ShieldAlert } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import { getUserProfile } from "@/lib/auth"
 import type { RolSistema } from "@/lib/supabase/types"
 import { ROLES_USUARIO } from "@/lib/constants"
-
-type NavItem = { href: string; label: string; icon: LucideIcon }
+import { SidebarNav } from "./_components/sidebar-nav"
+import { MobileSidebar } from "./_components/mobile-sidebar"
+import type { NavItem } from "./_components/sidebar-nav"
 
 const navItemsPorRol: Record<RolSistema, NavItem[]> = {
   registro_control: [
-    { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
-    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: FileText },
-    { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
-    { href: "/dashboard/reportes", label: "Reportes", icon: BarChart3 },
-    { href: "/dashboard/auditoria", label: "Auditoría", icon: ClipboardList },
+    { href: "/dashboard", label: "Inicio", icon: "LayoutDashboard" },
+    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: "FileText" },
+    { href: "/dashboard/usuarios", label: "Usuarios", icon: "Users" },
+    { href: "/dashboard/reportes", label: "Reportes", icon: "BarChart3" },
+    { href: "/dashboard/auditoria", label: "Auditoría", icon: "ClipboardList" },
   ],
   auxiliar_administrativo: [
-    { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
-    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: FileText },
+    { href: "/dashboard", label: "Inicio", icon: "LayoutDashboard" },
+    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: "FileText" },
   ],
   centro_admisiones: [
-    { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
-    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: FileText },
+    { href: "/dashboard", label: "Inicio", icon: "LayoutDashboard" },
+    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: "FileText" },
   ],
   coordinador_programa: [
-    { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
-    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: FileText },
+    { href: "/dashboard", label: "Inicio", icon: "LayoutDashboard" },
+    { href: "/dashboard/solicitudes", label: "Solicitudes", icon: "FileText" },
   ],
   estudiante: [
-    { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Inicio", icon: "LayoutDashboard" },
     {
       href: "/dashboard/solicitudes",
       label: "Mis Solicitudes",
-      icon: FileText,
+      icon: "FileText",
     },
   ],
 }
@@ -65,18 +56,7 @@ function Sidebar({
         </span>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      <SidebarNav items={navItems} />
 
       <div className="border-t p-4">
         <p className="text-sm font-medium text-sidebar-foreground">
@@ -109,7 +89,7 @@ export default async function DashboardLayout({
             te asigne los permisos correspondientes.
           </p>
           <div className="mt-6">
-            <UserButton />
+            <UserButton afterSignOutUrl="/sign-in" />
           </div>
         </div>
       </div>
@@ -123,8 +103,9 @@ export default async function DashboardLayout({
       <Sidebar navItems={items} profile={profile} />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center justify-end gap-4 border-b bg-background px-6">
-          <UserButton />
+        <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-6">
+          <MobileSidebar navItems={items} profile={profile} />
+          <UserButton afterSignOutUrl="/sign-in" />
         </header>
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>

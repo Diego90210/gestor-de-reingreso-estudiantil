@@ -17,6 +17,7 @@ interface SolicitudFiltrosProps {
   estado: string
   programa: string
   periodos: { id: string; nombre: string }[]
+  rol: string
 }
 
 export function SolicitudFiltros({
@@ -24,7 +25,9 @@ export function SolicitudFiltros({
   estado,
   programa,
   periodos,
+  rol,
 }: SolicitudFiltrosProps) {
+  const esEstudiante = rol === "estudiante"
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -76,22 +79,24 @@ export function SolicitudFiltros({
           ))}
         </SelectContent>
       </Select>
-      <Select
-        value={programa || "_"}
-        onValueChange={(v) => actualizar("programa", v === "_" ? "" : v)}
-      >
-        <SelectTrigger className="w-52">
-          <SelectValue placeholder="Todos los programas" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="_">Todos los programas</SelectItem>
-          {PROGRAMAS.map((p) => (
-            <SelectItem key={p} value={p}>
-              {p}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {!esEstudiante && (
+        <Select
+          value={programa || "_"}
+          onValueChange={(v) => actualizar("programa", v === "_" ? "" : v)}
+        >
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Todos los programas" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="_">Todos los programas</SelectItem>
+            {PROGRAMAS.map((p) => (
+              <SelectItem key={p} value={p}>
+                {p}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       {periodos.length > 0 && (
         <Select
           value={periodo || "_"}

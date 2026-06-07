@@ -21,6 +21,7 @@ interface SolicitudesTableProps {
   total: number
   page: number
   totalPages: number
+  rol: string
 }
 
 export function SolicitudesTable({
@@ -28,10 +29,12 @@ export function SolicitudesTable({
   total,
   page,
   totalPages,
+  rol,
 }: SolicitudesTableProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const esEstudiante = rol === "estudiante"
 
   function irPagina(p: number) {
     const params = new URLSearchParams(searchParams.toString())
@@ -57,7 +60,7 @@ export function SolicitudesTable({
         <TableHeader>
           <TableRow>
             <TableHead className="w-36">Radicado</TableHead>
-            <TableHead>Estudiante</TableHead>
+            {!esEstudiante && <TableHead>Estudiante</TableHead>}
             <TableHead className="hidden md:table-cell">Programa</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead className="hidden md:table-cell">Fecha</TableHead>
@@ -70,14 +73,16 @@ export function SolicitudesTable({
               <TableCell className="font-mono text-xs font-medium">
                 {s.numero_radicado}
               </TableCell>
-              <TableCell>
-                <div className="text-sm font-medium">
-                  {s.estudiante?.nombre ?? "—"} {s.estudiante?.apellido ?? ""}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {s.estudiante?.email ?? ""}
-                </div>
-              </TableCell>
+              {!esEstudiante && (
+                <TableCell>
+                  <div className="text-sm font-medium">
+                    {s.estudiante?.nombre ?? "—"} {s.estudiante?.apellido ?? ""}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {s.estudiante?.email ?? ""}
+                  </div>
+                </TableCell>
+              )}
               <TableCell className="hidden text-sm md:table-cell">
                 {s.programa}
               </TableCell>
