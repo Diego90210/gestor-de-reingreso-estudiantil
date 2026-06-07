@@ -14,6 +14,7 @@
         "SUPABASE_PUBLISHABLE_publica",
         "SUPABASE_SECRET_secreta",
         "SUPABASE_SECRET_KEYS",
+        "SUPABASE_URL",
       ]
     },
     "lint": {
@@ -36,6 +37,7 @@
         "SUPABASE_PUBLISHABLE_publica",
         "SUPABASE_SECRET_secreta",
         "SUPABASE_SECRET_KEYS",
+        "SUPABASE_URL",
       ]
     }
   }

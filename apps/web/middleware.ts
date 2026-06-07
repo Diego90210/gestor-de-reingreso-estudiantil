@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { createClient } from "@supabase/supabase-js"
 import type { NextRequest } from "next/server"
-import { readSecretKey } from "@/lib/supabase/keys"
+import { readSupabaseUrl, readSecretKey } from "@/lib/supabase/keys"
 
 const isAdminRoute = createRouteMatcher([
   "/dashboard/usuarios(.*)",
@@ -17,7 +17,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   try {
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      readSupabaseUrl(),
       readSecretKey(),
       {
         auth: { persistSession: false, autoRefreshToken: false },

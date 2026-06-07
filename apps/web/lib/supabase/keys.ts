@@ -1,3 +1,11 @@
+function readSupabaseUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_SUPABASE_URL ??
+    process.env.SUPABASE_URL ??
+    ""
+  )
+}
+
 function readPublishableKey(): string {
   const json = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS
   if (json) {
@@ -32,4 +40,4 @@ function readSecretKey(): string {
   )
 }
 
-export { readPublishableKey, readSecretKey }
+export { readSupabaseUrl, readPublishableKey, readSecretKey }
