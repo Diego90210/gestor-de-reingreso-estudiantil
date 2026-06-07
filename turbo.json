@@ -7,10 +7,15 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
       "env": [
-        "SUPABASE_SECRET_KEYS",
+        "CLERK_SECRET_KEY",
         "NEXT_PUBLIC_SUPABASE_URL",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS",
-        "RESEND_API_KEY"
+        "RESEND_API_KEY",
+        "SUPABASE_PUBLISHABLE_default",
+        "SUPABASE_PUBLISHABLE_mi-clave",
+        "SUPABASE_SECRET_default",
+        "SUPABASE_SECRET_KEYS",
+        "SUPABASE_SECRET_mi-clave"
       ]
     },
     "lint": {
@@ -26,10 +31,15 @@
       "cache": false,
       "persistent": true,
       "env": [
-        "SUPABASE_SECRET_KEYS",
+        "CLERK_SECRET_KEY",
         "NEXT_PUBLIC_SUPABASE_URL",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS",
-        "RESEND_API_KEY"
+        "RESEND_API_KEY",
+        "SUPABASE_PUBLISHABLE_default",
+        "SUPABASE_PUBLISHABLE_mi-clave",
+        "SUPABASE_SECRET_default",
+        "SUPABASE_SECRET_KEYS",
+        "SUPABASE_SECRET_mi-clave"
       ]
     }
   }
