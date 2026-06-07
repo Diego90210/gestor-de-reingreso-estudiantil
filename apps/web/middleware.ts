@@ -15,13 +15,14 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (!userId) return
 
   try {
+    const keys = JSON.parse(process.env.SUPABASE_SECRET_KEYS!)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      keys["mi-clave"],
       {
         auth: { persistSession: false, autoRefreshToken: false },
         global: { fetch: fetch.bind(globalThis) },
-      }
+      },
     )
 
     const { data: profile } = await supabase
