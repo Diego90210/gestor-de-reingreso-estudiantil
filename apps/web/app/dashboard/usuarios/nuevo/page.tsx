@@ -47,7 +47,6 @@ export default function NuevoUsuarioPage() {
       })
       toast.success("Usuario creado correctamente")
       router.push("/dashboard/usuarios")
-      router.refresh()
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Error al crear usuario"
       setError(msg)
