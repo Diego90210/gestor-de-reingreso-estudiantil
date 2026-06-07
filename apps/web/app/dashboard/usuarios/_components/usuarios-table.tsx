@@ -76,7 +76,7 @@ export function UsuariosTable({
         toast.success(
           usuario.activo
             ? "Usuario desactivado correctamente"
-            : "Usuario reactivado correctamente",
+            : "Usuario reactivado correctamente"
         )
         router.refresh()
       } catch {

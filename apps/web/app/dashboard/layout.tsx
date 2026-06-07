@@ -89,7 +89,7 @@ export default async function DashboardLayout({
             te asigne los permisos correspondientes.
           </p>
           <div className="mt-6">
-            <UserButton afterSignOutUrl="/sign-in" />
+            <UserButton />
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default async function DashboardLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-6">
           <MobileSidebar navItems={items} profile={profile} />
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton />
         </header>
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>

@@ -50,7 +50,12 @@ export function NuevaSolicitudForm({
     <form action={handleSubmit} className="space-y-6 rounded-lg border p-6">
       <div className="space-y-2">
         <Label htmlFor="periodo_id">Período Académico *</Label>
-        <Select name="periodo_id" value={periodo} onValueChange={setPeriodo} required>
+        <Select
+          name="periodo_id"
+          value={periodo}
+          onValueChange={setPeriodo}
+          required
+        >
           <SelectTrigger id="periodo_id">
             <SelectValue placeholder="Seleccione un período" />
           </SelectTrigger>
@@ -66,7 +71,12 @@ export function NuevaSolicitudForm({
 
       <div className="space-y-2">
         <Label htmlFor="programa">Programa Académico *</Label>
-        <Select name="programa" value={programa} onValueChange={setPrograma} required>
+        <Select
+          name="programa"
+          value={programa}
+          onValueChange={setPrograma}
+          required
+        >
           <SelectTrigger id="programa">
             <SelectValue placeholder="Seleccione su programa" />
           </SelectTrigger>
