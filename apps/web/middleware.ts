@@ -14,20 +14,27 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { userId } = await auth()
   if (!userId) return
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } }
-  )
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: { persistSession: false, autoRefreshToken: false },
+        global: { fetch: fetch.bind(globalThis) },
+      }
+    )
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("rol")
-    .eq("clerk_id", userId)
-    .single()
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("rol")
+      .eq("clerk_id", userId)
+      .single()
 
-  if (profile && (profile as unknown as { rol: string }).rol === "estudiante") {
-    return Response.redirect(new URL("/dashboard/no-autorizado", req.url))
+    if (profile && (profile as unknown as { rol: string }).rol === "estudiante") {
+      return Response.redirect(new URL("/dashboard/no-autorizado", req.url))
+    }
+  } catch {
+    console.warn("[middleware] Error al verificar rol — permitiendo acceso")
   }
 })
 
