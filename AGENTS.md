@@ -59,6 +59,11 @@ Key path aliases in `apps/web`: `@/*` → `./*`, `@workspace/ui/*` → `../../pa
 - Print width: 80
 - Tailwind class sorting via `prettier-plugin-tailwindcss`
 
+## Workflow Rules
+
+- **No commits sin autorización explícita.** Proponer cambios, esperar confirmación, y solo entonces commitear y pushear.
+- **Preguntar antes de actuar** cuando haya ambigüedad en el requerimiento.
+
 ## Important Conventions
 
 - **Tailwind v4**: No JS config file. All theme customization uses `@theme inline` CSS directives in `packages/ui/src/styles/globals.css`. When adding new CSS tokens, add them there.
